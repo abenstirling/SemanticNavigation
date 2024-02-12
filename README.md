@@ -19,7 +19,7 @@ Our Github repo is found here: https://github.com/abenstirling/CSE151A_Project
 Perform the data exploration step (i.e. evaluate your data, # of observations, details about your data distributions, scales, missing data, column descriptions) Note: For image data you can still describe your data by the number of classes, # of images, plot example classes of the image, size of image. 
  
 Are sizes uniform? 
-- No, we will need to crop. 
+- No, images in the dataset are a range of sizes. 
 
 Do they need to be cropped? 
 - Yes. Some of our depth will be “fake” model output and will result in different dimensions and absolute values. 
@@ -27,10 +27,10 @@ Do they need to be cropped?
 Normalized?
 - Yes. All depth maps will be expressed in meters from the camera at each pixel.
 
-We are likely going to run with this dataset: 
+Dataset (With original data if we can get it): 
 - https://www.kaggle.com/datasets/itsahmad/indoor-scenes-cvpr-2019/data
 
-We will add depth with glpn-nyu:
+Depth Estimation for the existing dataset with glpn-nyu:
 - https://huggingface.co/vinvino02/glpn-nyu
 
 Plot your data. For image data, you will need to plot your example classes.
@@ -39,7 +39,7 @@ Plot your data. For image data, you will need to plot your example classes.
 
 How will you preprocess your data? 
 
-Aside from cropping, and normalization, we plan on running glpn-nyu and putting in a new depth dimension to our image dataset. 
+Aside from cropping, and normalization, we are using glpn-nyu and putting in a new depth dimension to our image dataset. 
 ![test](https://github.com/abenstirling/CSE151A_Project/blob/main/Notebooks/DepthEstimation.png?raw=true)
 
 - [X] Your jupyter notebook(s) should be uploaded to your repo.
