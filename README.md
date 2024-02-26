@@ -8,11 +8,9 @@ Our First Model Notebook: https://github.com/abenstirling/CSE151A_Project/blob/m
 Comparing training vs test error. Is our model overfitting or underfitting? 
 Fitting Graph and where our model fits
 
-Next Two Models: If we are overfitting, Since our model is overfitting we can improve performance by augmenting our data further. We can increase the diversity of the training set by rotating, scaling, and flipping images. Dropout layers also reduce dependency on specific features and promote generalization. We can also apply L1 or L2 regularization to the weights of the network to penalize large weights. 
+Next Two Models: Since our model is overfitting we can improve performance by augmenting our data further. We can increase the diversity of the training set by rotating, scaling, and flipping images. Dropout layers also reduce dependency on specific features and promote generalization. We can also apply L1 or L2 regularization to the weights of the network to penalize large weights. 
 
- If we are underfitting, Increasing the depth of our network with additional convolutional layers or neurons in the dense layers will allow us the capture more complex features. 
-
- General improvements: To improve general performance we can do some hyperparameter tuning to experiment with different learning rates, batch sizes, and optimizer settings to find the best possible configuration for our model. We can add batch normalization layers to stabilize and speed up training. 
+General improvements: To improve general performance we can do some hyperparameter tuning to experiment with different learning rates, batch sizes, and optimizer settings to find the best possible configuration for our model. We can add batch normalization layers to stabilize and speed up training. 
 
  If we decide to use only a subset of our dataset since it is so large, we can include that here for improvements.
 
