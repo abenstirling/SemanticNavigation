@@ -2,6 +2,21 @@
 ## Abstract
 In the cutting-edge field of AI-powered home robots, our proposed development of a beer-serving home robot with semantic navigation within indoor spaces is definitely innovative. Our robot, powered by custom-trained machine learning models via a suite of sensors including LIDAR, will be able to discern and interact with various elements of a household environment, such as identifying a kitchen or navigating around furniture. We propose that we shall train a convolutional neural network to accomplish the task of classifying images of indoor spaces by room name. Additionally, we also propose using room layout information derived from LIDAR as an input to our CNN. This, in aggregation with classical navigation techniques such as SLAM, will allow us to establish a mapping of 3d coordinates to semantic space (room name), making possible our end goal of a robot which is capable of semantic navigation given a list of high-level unstructured waypoints.
 
+## MILESTONE 3
+Our First Model Notebook: https://github.com/abenstirling/CSE151A_Project/blob/main/Models/First_Model.ipynb
+
+Comparing training vs test error. Is our model overfitting or underfitting? 
+Fitting Graph and where our model fits
+
+Next Two Models: If we are overfitting, Since our model is overfitting we can improve performance by augmenting our data further. We can increase the diversity of the training set by rotating, scaling, and flipping images. Dropout layers also reduce dependency on specific features and promote generalization. We can also apply L1 or L2 regularization to the weights of the network to penalize large weights. 
+
+ If we are underfitting, Increasing the depth of our network with additional convolutional layers or neurons in the dense layers will allow us the capture more complex features. 
+
+ General improvements: To improve general performance we can do some hyperparameter tuning to experiment with different learning rates, batch sizes, and optimizer settings to find the best possible configuration for our model. We can add batch normalization layers to stabilize and speed up training. 
+
+Conclusion of our First Model: This first model is a great starting point and a step in the right direction. It helps us understand how our current setup and data prep methods are doing. By carefully fixing any problems we find, we can gradually make our next two models better by not making the same mistakes we made here. We aim to build a strong model that can correctly identify different rooms in a house, making our beer-delivering home robot smarter and more capable of moving around on its own. Trying new things and making adjustments are crucial steps to improve our next models.  
+
+
 ## MILESTONE 2
 In this assignment you will need to:
 
