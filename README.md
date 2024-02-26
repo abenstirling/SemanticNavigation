@@ -6,7 +6,6 @@ In the cutting-edge field of AI-powered home robots, our proposed development of
 Our First Model Notebook: https://github.com/abenstirling/CSE151A_Project/blob/main/Models/First_Model.ipynb
 
 Comparing training vs test error. Is our model overfitting or underfitting? 
-Fitting Graph and where our model fits
 
 ![Test](https://github.com/abenstirling/CSE151A_Project/blob/main/accuracy.png?raw=true)
 ![Test](https://github.com/abenstirling/CSE151A_Project/blob/main/loss.png?raw=true)
