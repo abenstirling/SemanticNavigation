@@ -141,10 +141,13 @@ Our first model was underfitting, but it was a good starting step for our projec
 
 ### Model 2
 Our second machine learning model showed substantial improvements over our initial model in terms of both accuracy and loss metrics. The training and validation accuracy of the second model reached approximately 70%, a significant increase from the roughly 50% accuracy achieved by the first model. This 20 percentage point gain in accuracy indicates that the second model is considerably better at correctly predicting outcomes on the training and validation datasets. In addition, the second model was able to reduce the loss to less than 1.5, an improvement over the 1.6 loss of the initial model. A lower loss value signifies that the second model's predictions are closer to the actual target values on average. Compared to the first model, the second model's 70% accuracy versus 50% and <1.5 loss versus 1.6 represent substantial improvements in predictive power and optimization of the loss function.
+
 ![test](https://github.com/abenstirling/CSE151A_Project/blob/main/model2_accuracy.png?raw=true)
 ![test](https://github.com/abenstirling/CSE151A_Project/blob/main/model2_loss.png?raw=true)
+
 ### Model 3
 Our third model, unfortunately, did not show substantial improvement over our second model in terms of either accuracy or loss. Although we believed that the new stream-based architecture would yield better results as a result of specializing layers to the type of information they operate on, we were unable to tune this model any further than a training accuracy of 0.73 and a validation accuracy of 0.65. We see a test accuracy of 0.65 as well, so we do not believe that this model is overfitting to the training data. Although this model initially had some issues with overfitting, we managed to combat these issues using dropout layers. Evidence indicates that we are also not underfitting, because neither decreasing the dropout rate nor removing dropout layers improves validation accuracy. It is out opinion that the next step towards improving this model would be to incorporate a greater volume of training data.
+
 ![test](https://github.com/abenstirling/CSE151A_Project/blob/main/model3_accuracy.png?raw=true)
 ![test](https://github.com/abenstirling/CSE151A_Project/blob/main/model3_loss.png?raw=true)
 
