@@ -35,7 +35,7 @@ The dataset used is the MIT Indoor Scenes dataset, which is a collection of abou
 ### Data Preprocessing
 The first step of our data preprocessing was to use our depth generation model to create depth images of all of our training data. We then proceeded to crop and resize our image data and depth data to 64x36. This is done within the ImageSizing.ipynb file. Next, we store our image files as numpy arrays by converting them to store each pixel as a value between 0 and 255 (RGB scale). Then, we scale the RGB values of each image to between 1 and 0 by dividing each numpy array by 255. Next, we resize our data to 64x64 and add the depth dimension to the data by concatenating the image and depth data together. This ‘final’ data is then stored as the X value and it’s classification is stored as the y value. Finally, we are able to train-test split our data and finish preprocessing. 
 ### Model 1
-```
+```python
 model = Sequential([
     InputLayer(input_shape=(64, 64, 4)), # Adjust the input shape to match the input of the images we decide on (e.g. 64 x 64 pixels)
     Conv2D(64, kernel_size=(4, 4), activation='relu'),
@@ -56,7 +56,7 @@ model = Sequential([
 ```
 This model consists of multiple convolutional layers followed by max pooling layers and dense dropouts within the fully connected layers. 
 ### Model 2
-```
+```python
 input_shape = (64, 64, 4)
 
 # we can create an input tensor here 
@@ -88,6 +88,48 @@ model = Model(inputs=inputs, outputs=output)
 The model consists of multiple convolutional layers with batch normalization, max pooling, dropout, and dense layers, and is trained using data generators with a learning rate scheduler callback to reduce the learning rate when the validation loss plateaus.
 
 ### Model 3
+```python
+rgb_input = Input(shape=(64, 64, 3))
+depth_input = Input(shape=(64, 64, 1))
+
+# RGB layers
+rgb_stream = Conv2D(64, kernel_size=(3, 3), activation='relu', padding='same', kernel_regularizer=l1(0.001), strides=(1,1))(rgb_input)
+rgb_stream = BatchNormalization()(rgb_stream)
+rgb_stream = MaxPooling2D(pool_size=(2, 2))(rgb_stream)
+rgb_stream = Conv2D(64, kernel_size=(2, 2), activation='relu', padding='same', kernel_regularizer=l2(0.001), strides=(1,1))(rgb_stream)
+rgb_stream = BatchNormalization()(rgb_stream)
+rgb_stream = MaxPooling2D(pool_size=(2, 2))(rgb_stream)
+rgb_stream = Conv2D(64, kernel_size=(2, 2), activation='relu', padding='same', kernel_regularizer=l2(0.001), strides=(1,1))(rgb_stream)
+rgb_stream = BatchNormalization()(rgb_stream)
+rgb_stream = MaxPooling2D(pool_size=(2, 2))(rgb_stream)
+
+# Depth layers
+depth_stream = Conv2D(64, kernel_size=(3, 3), activation='relu', padding='same', kernel_regularizer=l1(0.001), strides=(1,1))(depth_input)
+depth_stream = BatchNormalization()(depth_stream)
+depth_stream = MaxPooling2D(pool_size=(2, 2))(depth_stream)
+depth_stream = Conv2D(64, kernel_size=(2, 2), activation='relu', padding='same', kernel_regularizer=l2(0.001), strides=(1,1))(depth_stream)
+depth_stream = BatchNormalization()(depth_stream)
+depth_stream = MaxPooling2D(pool_size=(2, 2))(depth_stream)
+depth_stream = Conv2D(64, kernel_size=(2, 2), activation='relu', padding='same', kernel_regularizer=l2(0.001), strides=(1,1))(depth_stream)
+depth_stream = BatchNormalization()(depth_stream)
+depth_stream = MaxPooling2D(pool_size=(2, 2))(depth_stream)
+
+combined = Concatenate()([rgb_stream, depth_stream])
+combined = Conv2D(128, kernel_size=(2, 2), activation='relu', padding='same', kernel_regularizer=l2(0.001), strides=(1, 1))(combined)
+combined = Dropout(0.3)(combined)
+combined = BatchNormalization()(combined)
+combined = GlobalAveragePooling2D()(combined)
+combined = Dropout(0.25)(combined)
+combined = Dense(128, activation='relu', kernel_regularizer=l2(0.001))(combined)
+combined = Dropout(0.2)(combined)
+combined = Dense(128, activation='relu', kernel_regularizer=l2(0.001))(combined)
+combined = Dropout(0.2)(combined)
+combined = Dense(128, activation='relu', kernel_regularizer=l2(0.001))(combined)
+
+output_layer = Dense(10, activation='softmax')(combined)
+```
+In this model, we initially separate the model into two streams of layers which separately process the RGB and depth data. We chose to do this because these two types of data communicated fundamentally different things, and are also described with different units -- RGB is normalized, whereas depth values are not. The separate streams consist of a sequence of `Conv2D` layers. After this they are concatenated, before we stack several dense layers in front of the output layer, interspersed with droupouts.
+
 # Results
 ### Data Exploration
 After refining our data set, the dataset was shrunk down from 15620 images to 3672 images in total. The remaining scene categories were bedroom, bathroom, kitchen, living room, laundry, garage, nursery, pantry, children room, dining room, and corridor. 
@@ -102,6 +144,9 @@ Our second machine learning model showed substantial improvements over our initi
 ![test](https://github.com/abenstirling/CSE151A_Project/blob/main/model2_accuracy.png?raw=true)
 ![test](https://github.com/abenstirling/CSE151A_Project/blob/main/model2_loss.png?raw=true)
 ### Model 3
+Our third model, unfortunately, did not show substantial improvement over our second model in terms of either accuracy or loss. Although we believed that the new stream-based architecture would yield better results as a result of specializing layers to the type of information they operate on, we were unable to tune this model any further than a training accuracy of 0.73 and a validation accuracy of 0.65. We see a test accuracy of 0.65 as well, so we do not believe that this model is overfitting to the training data. Although this model initially had some issues with overfitting, we managed to combat these issues using dropout layers. Evidence indicates that we are also not underfitting, because neither decreasing the dropout rate nor removing dropout layers improves validation accuracy. It is out opinion that the next step towards improving this model would be to incorporate a greater volume of training data.
+![test](https://github.com/abenstirling/CSE151A_Project/blob/main/model3_accuracy.png?raw=true)
+![test](https://github.com/abenstirling/CSE151A_Project/blob/main/model3_loss.png?raw=true)
 
 # Discussion
 ### Data Exploration
@@ -114,7 +159,20 @@ For our first model, we constructed a fairly typical CNN image classifier. The n
 We improved the architecture of the model drastically by incorporating batch normalization, a global average Pooling layer, more L2 regularization, and higher dropout layers. Adding a batch normalization layer after every convolutional layer was added as a regularization technique to prevent overfitting and also to speed up training. The flatten layer was replaced with  Global Average Pooling layer, which should reduce the need for many dense layers and make our model more generalizable, further preventing overfitting.
 In addition to this restructuring our model architecture, we performed some data augmentation such flipping, shifting, and rotating our training images. This model outperformed the our first by a wide margin. The better performance of the second model over the first is likely due to some combination of higher-quality input data, a more suitable model architecture, and better-tuned hyperparameters.
 ### Model 3
+For our third model, we took a novel approach by creating a dual-stream architecture that processes the RGB and depth information separately before combining them. This allows the model to learn features specific to each modality and then fuse them together for the final classification. The RGB stream and depth stream each consist of a series of convolutional layers with batch normalization and max pooling. The convolutional layers extract features from the input images, while the batch normalization helps regularize the model and speed up training. Max pooling reduces the spatial dimensions, which helps prevent overfitting and reduces computational complexity.
+
+After processing the RGB and depth streams separately, we concatenate their outputs and pass them through additional convolutional, dropout, and dense layers, reducing the risk of overfitting. We also incorporated L1 and L2 regularization in the convolutional and dense layers to add additional constraints on the model's weights, further reducing the risk of overfitting. This dual-stream architecture allows the model to effectively combine the information from both the RGB and depth modalities, potentially leading to improved performance compared to processing them together from the start. The combination of regularization techniques (batch normalization, dropout, L1/L2 regularization) should help the model generalize well to new data. Although we did not see much improvement with this model as compared to Model 2, we stil believe the architecture to be fundamentally superior. With more data, we would expect the performance of this model to improve dramatically, given that the architecture should generalize to new data better than our previous architectures did.
 # Conclusion
+In this project, we developed a series of CNN models to classify indoor scenes for a beer-serving home robot using the MIT Indoor Scenes Dataset. Our goal was to create a model that could accurately classify images of rooms in a typical home, which would enable our robot to navigate semantically through an indoor environment.
+
+Through the course of this project, we explored the dataset, preprocessed the images, and developed three distinct CNN architectures. The first model, although simple, provided a good starting point and helped us understand the task at hand. The second model incorporated several improvements, such as batch normalization, global average pooling, and data augmentation, which significantly boosted its performance over the first model.
+
+The third model introduced a novel dual-stream architecture that separately processed the RGB and depth information before combining them. This approach allowed the model to learn features specific to each modality and then fuse them for the final classification. Although this model did not show substantial improvement over the second model, we believe that with more training data, its performance could be dramatically enhanced due to its architecture that should generalize well to new data.
+
+Throughout the development process, we employed various regularization techniques, such as dropout, L1/L2 regularization, and batch normalization, to prevent overfitting and improve the models' ability to generalize to new data.
+
+In conclusion, our project demonstrates the potential of using CNNs to classify indoor scenes for semantic navigation in home robots. The models we developed, particularly the second and third architectures, show promising results and provide a solid foundation for further research and development in this field. With additional data and fine-tuning, we believe that our approach could be extended to create even more accurate and robust models for indoor scene classification, bringing us closer to the goal of developing intelligent, semantically-aware home robots.
+
 # Collaboration
 Ben Stirling - 4th year computer engineering student - I helped design and implement model 2. 
 
@@ -126,7 +184,7 @@ Keyan Azbijari - 4th year Math-CS student- I helped with writing the ReadME/repo
 
 Kruti Dharanipathi - 3rd year Computer Engineering Student- I helped with writing the reports, feedback, and meeting facilitation.
 
-Ariel Young - 4th year Computer Engineering Student - I worked on data preprocessing and ensuring that everyone could get setup and run the .ipynb locally. Also helped tune models 1 and 3 to outstanding accuracy and great loss. 
+Ariel Young - 4th year Computer Engineering Student - I worked on data preprocessing and ensuring that everyone could get setup and run the .ipynb locally, and helped to tune models 1 and 3 to a reasonably degree of accuracy and low loss. I also helped to write the report.
 
 Carson Rae - 4th-year Computer Engineering Student - I worked on data preprocessing (adding depth dimension, normalization, one-hot encoding, etc.) and designed and implemented the first model, along with initial hyperparameter tuning.
 
