@@ -1,6 +1,133 @@
 # CSE151A_Project
+
 # Abstract
 In the cutting-edge field of AI-powered home robots, our proposed development of a beer-serving home robot with semantic navigation within indoor spaces is definitely innovative. Our robot, powered by custom-trained machine learning models via a suite of sensors including LIDAR, will be able to discern and interact with various elements of a household environment, such as identifying a kitchen or navigating around furniture. We propose that we shall train a convolutional neural network to accomplish the task of classifying images of indoor spaces by room name. Additionally, we also propose using room layout information derived from LIDAR as an input to our CNN. This, in aggregation with classical navigation techniques such as SLAM, will allow us to establish a mapping of 3d coordinates to semantic space (room name), making possible our end goal of a robot which is capable of semantic navigation given a list of high-level unstructured waypoints.
+
+# Introduction
+### Project Overview
+In the field of artificial intelligence (AI) and robotics, the development of home robots that can interact with their environment represents a significant step forward. This paper discusses the development of a new kind of home robot, a robot designed to serve beer, which can navigate through many different indoor spaces. Our project leverages custom-trained machine learning models, supported by a suite of sensors including LIDAR, to enable the robot to recognize and navigate through different parts of a home, such as kitchens and living rooms, and to maneuver around obstacles like furniture. 
+The focus of our project is to train a convolutional neural network (CNN) to identify indoor spaces by room name using images, with the addition of spatial data from LIDAR to improve the model’s performance. 
+We emphasize the functionality of delivering beverages and the technological innovation of having a robot to understand and navigate through indoor environments more efficiently and effectively. By combining AI with precise sensor data we can push the boundaries of current home robot capabilities.
+
+### Motivation and Significance
+Our motivation for doing this project is that while there are large data sets of images of indoor spaces that are tagged well, very little exists for images with depth information to solve this problem and our goal is to supplement these types of models with data from general depth models. The significance of this is that it will allow depth cameras to be used for this task better than if they were only using their RGB data and not using their depth sensors. 
+
+### Repository Structure
+The file structure of our project is the following: 
+```
+/Data
+  Prepare_data.sh
+/Models
+  First_Model.ipynb
+  Second_Model.ipynb
+  Third_Model.ipynb
+/Notebooks
+  Add_Depth_CVPR.ipynb
+  GetDatasetImageInfo.ipynb
+  Im
+```
+# Methods
+### Data Exploration
+The dataset used is the MIT Indoor Scenes dataset, which is a collection of about 15620 images from 67 scene categories, where each category contains a minimum of 100 images. The 67 scenes are further organized in 5 “scene groups”: Store, Home, Public Spaces, Leisure, and Working Place. Images are in jpg format and come in a range of different sizes and resolutions, where the minimum resolution is 200 pixels wide. Images do not contain any depth data, which is another dimension that our model depends on and was added during preprocessing. Only the Home scene group is used for training and validation of the model. The dataset was then further refined to remove the scene categories “winecellar”, “lobby”, “closet”, and “staircase”.
+### Data Preprocessing
+The first step of our data preprocessing was to use our depth generation model to create depth images of all of our training data. We then proceeded to crop and resize our image data and depth data to 64x36. This is done within the ImageSizing.ipynb file. Next, we store our image files as numpy arrays by converting them to store each pixel as a value between 0 and 255 (RGB scale). Then, we scale the RGB values of each image to between 1 and 0 by dividing each numpy array by 255. Next, we resize our data to 64x64 and add the depth dimension to the data by concatenating the image and depth data together. This ‘final’ data is then stored as the X value and it’s classification is stored as the y value. Finally, we are able to train-test split our data and finish preprocessing. 
+### Model 1
+```
+model = Sequential([
+    InputLayer(input_shape=(64, 64, 4)), # Adjust the input shape to match the input of the images we decide on (e.g. 64 x 64 pixels)
+    Conv2D(64, kernel_size=(4, 4), activation='relu'),
+    MaxPooling2D(pool_size=(2, 2)),
+    Conv2D(64, kernel_size=(3, 3), activation='relu'),
+    MaxPooling2D(pool_size=(2, 2)),
+    Conv2D(64, kernel_size=(3, 3), activation='relu'),
+    MaxPooling2D(pool_size=(2, 2)),
+    Conv2D(32, kernel_size=(3, 3), activation='relu'),
+    Flatten(),
+    Dense(128, activation='relu', kernel_regularizer=L1L2(0.0001)),
+    Dropout(0.25),
+    Dense(64, activation='relu'),
+    Dropout(0.25),
+    Dense(32, activation='relu'),
+    Dense(10, activation='softmax')
+])
+```
+This model consists of multiple convolutional layers followed by max pooling layers and dense dropouts within the fully connected layers. 
+### Model 2
+```
+input_shape = (64, 64, 4)
+
+# we can create an input tensor here 
+inputs = Input(shape=input_shape)
+
+# our custom CNN architecture, we got the batch normalization!!
+x = Conv2D(32, (3, 3), activation='relu', padding='same', kernel_regularizer=l2(0.001))(inputs)
+x = BatchNormalization()(x)
+x = MaxPooling2D((2, 2))(x)
+x = Dropout(0.25)(x)
+x = Conv2D(64, (3, 3), activation='relu', padding='same', kernel_regularizer=l2(0.001))(x)
+x = BatchNormalization()(x)
+x = Conv2D(64, (3, 3), activation='relu', padding='same', kernel_regularizer=l2(0.001))(x)
+x = BatchNormalization()(x)
+x = MaxPooling2D((2, 2))(x)
+x = Dropout(0.25)(x)
+x = Conv2D(128, (3, 3), activation='relu', padding='same', kernel_regularizer=l2(0.001))(x)
+x = BatchNormalization()(x)
+x = Conv2D(128, (3, 3), activation='relu', padding='same', kernel_regularizer=l2(0.001))(x)
+x = BatchNormalization()(x)
+x = MaxPooling2D((2, 2))(x)
+x = Dropout(0.25)(x)
+x = GlobalAveragePooling2D()(x)
+x = Dense(256, activation='relu', kernel_regularizer=l2(0.001))(x)
+x = Dropout(0.5)(x)
+output = Dense(10, activation='softmax')(x) 
+model = Model(inputs=inputs, outputs=output)
+```
+The model consists of multiple convolutional layers with batch normalization, max pooling, dropout, and dense layers, and is trained using data generators with a learning rate scheduler callback to reduce the learning rate when the validation loss plateaus.
+
+### Model 3
+# Results
+### Data Exploration
+After refining our data set, the dataset was shrunk down from 15620 images to 3672 images in total. The remaining scene categories were bedroom, bathroom, kitchen, living room, laundry, garage, nursery, pantry, children room, dining room, and corridor. 
+### Model 1
+Our first model was underfitting, but it was a good starting step for our project. Our model was performing with a training loss of around 1.6 and a validation loss of around 1.7. As for our accuracy, the training accuracy was around 52% and the validation accuracy was around 47%. This first model really helped us understand the current setup and our data prep. 
+
+![Test](https://github.com/abenstirling/CSE151A_Project/blob/main/accuracy.png?raw=true)
+![Test](https://github.com/abenstirling/CSE151A_Project/blob/main/loss.png?raw=true)
+
+### Model 2
+Our second machine learning model showed substantial improvements over our initial model in terms of both accuracy and loss metrics. The training and validation accuracy of the second model reached approximately 70%, a significant increase from the roughly 50% accuracy achieved by the first model. This 20 percentage point gain in accuracy indicates that the second model is considerably better at correctly predicting outcomes on the training and validation datasets. In addition, the second model was able to reduce the loss to less than 1.5, an improvement over the 1.6 loss of the initial model. A lower loss value signifies that the second model's predictions are closer to the actual target values on average. Compared to the first model, the second model's 70% accuracy versus 50% and <1.5 loss versus 1.6 represent substantial improvements in predictive power and optimization of the loss function. The better performance is likely due to some combination of higher-quality input data, a more suitable model architecture, and better-tuned hyperparameters.
+
+![test](https://github.com/abenstirling/CSE151A_Project/blob/main/model2_accuracy.png?raw=true)
+![test](https://github.com/abenstirling/CSE151A_Project/blob/main/model2_loss.png?raw=true)
+### Model 3
+
+# Discussion
+### Data Exploration
+The MIT Indoor Scenes Dataset was chosen because it was fairly large and comprehensive, and it perfectly fit our task of classifying rooms. The dataset was reduced because it also contained large number of non-home scenes, and our task is only concerned with classifying rooms in a typical home. Other catagories in the "home" scene group such as "wineceller" and "lobby" were also removed as they do not reflect rooms one might find in a typical American home. Although the dataset was dramatically reduced, we were still left ~4000 images, which was sufficient for training our models as demonstrated.
+### Preprocessing
+Images in the dataset were not uniform; they varied drastically in size and aspect ratio. Additionally, they lacked depth, which is an important attribute that our model depends on. So the first step in preprocessing was to obtain depth maps of each scene using the GPLN depth model. The raw images were resized and their RGB values normalized to improve the performance and efficiency of our models. This is because uniformity and normalization in the RGB data helps speed up the convergence of the gradient descent in the training process and increases generalization of the model.
+### Model 1
+For our first model, we constructed a fairly typical CNN image classifier. The network is starts with a cascade of convolutional layers combined with Pooling layers. Convolutional layers are essential to image classification to create feature maps using filters. These convolutional layers are followed by Pooling layers to reduce the spacial dimensions of the output of each convolutional layer, which reduces the training time and overfitting. A flatten layer is added after the last convolutional layer to flatten the input so that it can be fed into the first Dense layer. We also utilized dropout layers in between some of the dense layers to perform regularization and reduce the chance of overfitting. As shown in the loss graph of the model, the divergence of the training loss and validation loss indicates that our model is underfitting and is therefor lacking in complexity of architecture for the task at hand. In the end, the model performed fairly well for a first attempt at a model.
+### Model 2
+We improved the architecture of the model drastically by incorporating batch normalization  
+### Model 3
+# Conclusion
+# Collaboration
+Ben Stirling - 4th year computer engineering student - I helped design and implement model 2. 
+
+Alan Mohamad - 4th year computer engineering student - I helped with writing the report and sending out when2meet to organize meetings.
+
+Moshe Bookstein - 3rd year computer science student - I helped do initial data exploration and helped do tuning for model 1 and implemented the architecture for model 3 as well as initial exploration of model 3, helped write and format reports.
+
+Keyan Azbijari - 4th year Math-CS student- I helped with writing the ReadME/report and facilitating meetings.
+
+Kruti Dharanipathi - 3rd year Computer Engineering Student- I helped with writing the reports, feedback, and meeting facilitation.
+
+Ariel Young - 4th year Computer Engineering Student - I worked on data preprocessing and ensuring that everyone could get setup and run the .ipynb locally. Also helped tune models 1 and 3 to outstanding accuracy and great loss. 
+
+Carson Rae - 4th-year Computer Engineering Student - I worked on data preprocessing (adding depth dimension, normalization, one-hot encoding, etc.) and designed and implemented the first model, along with initial hyperparameter tuning.
+
+# Previous Milestones:
 # MILESTONE 4
 Milestone: Building and Evaluating the Second Model
 
