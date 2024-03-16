@@ -26,7 +26,10 @@ The file structure of our project is the following:
   GetDatasetImageInfo.ipynb
   Im
 ```
+
+
 # Methods
+![Test](https://github.com/abenstirling/CSE151A_Project/blob/6b04426a3301f522dc857a663ee3a93c76651ac6/model_construction.jpg?raw=true)
 ### Data Exploration
 The dataset used is the MIT Indoor Scenes dataset, which is a collection of about 15620 images from 67 scene categories, where each category contains a minimum of 100 images. The 67 scenes are further organized in 5 “scene groups”: Store, Home, Public Spaces, Leisure, and Working Place. Images are in jpg format and come in a range of different sizes and resolutions, where the minimum resolution is 200 pixels wide. Images do not contain any depth data, which is another dimension that our model depends on and was added during preprocessing. Only the Home scene group is used for training and validation of the model. The dataset was then further refined to remove the scene categories “winecellar”, “lobby”, “closet”, and “staircase”.
 ### Data Preprocessing
@@ -95,8 +98,7 @@ Our first model was underfitting, but it was a good starting step for our projec
 ![Test](https://github.com/abenstirling/CSE151A_Project/blob/main/loss.png?raw=true)
 
 ### Model 2
-Our second machine learning model showed substantial improvements over our initial model in terms of both accuracy and loss metrics. The training and validation accuracy of the second model reached approximately 70%, a significant increase from the roughly 50% accuracy achieved by the first model. This 20 percentage point gain in accuracy indicates that the second model is considerably better at correctly predicting outcomes on the training and validation datasets. In addition, the second model was able to reduce the loss to less than 1.5, an improvement over the 1.6 loss of the initial model. A lower loss value signifies that the second model's predictions are closer to the actual target values on average. Compared to the first model, the second model's 70% accuracy versus 50% and <1.5 loss versus 1.6 represent substantial improvements in predictive power and optimization of the loss function. The better performance is likely due to some combination of higher-quality input data, a more suitable model architecture, and better-tuned hyperparameters.
-
+Our second machine learning model showed substantial improvements over our initial model in terms of both accuracy and loss metrics. The training and validation accuracy of the second model reached approximately 70%, a significant increase from the roughly 50% accuracy achieved by the first model. This 20 percentage point gain in accuracy indicates that the second model is considerably better at correctly predicting outcomes on the training and validation datasets. In addition, the second model was able to reduce the loss to less than 1.5, an improvement over the 1.6 loss of the initial model. A lower loss value signifies that the second model's predictions are closer to the actual target values on average. Compared to the first model, the second model's 70% accuracy versus 50% and <1.5 loss versus 1.6 represent substantial improvements in predictive power and optimization of the loss function.
 ![test](https://github.com/abenstirling/CSE151A_Project/blob/main/model2_accuracy.png?raw=true)
 ![test](https://github.com/abenstirling/CSE151A_Project/blob/main/model2_loss.png?raw=true)
 ### Model 3
@@ -109,7 +111,8 @@ Images in the dataset were not uniform; they varied drastically in size and aspe
 ### Model 1
 For our first model, we constructed a fairly typical CNN image classifier. The network is starts with a cascade of convolutional layers combined with Pooling layers. Convolutional layers are essential to image classification to create feature maps using filters. These convolutional layers are followed by Pooling layers to reduce the spacial dimensions of the output of each convolutional layer, which reduces the training time and overfitting. A flatten layer is added after the last convolutional layer to flatten the input so that it can be fed into the first Dense layer. We also utilized dropout layers in between some of the dense layers to perform regularization and reduce the chance of overfitting. As shown in the loss graph of the model, the divergence of the training loss and validation loss indicates that our model is underfitting and is therefor lacking in complexity of architecture for the task at hand. In the end, the model performed fairly well for a first attempt at a model.
 ### Model 2
-We improved the architecture of the model drastically by incorporating batch normalization  
+We improved the architecture of the model drastically by incorporating batch normalization, a global average Pooling layer, more L2 regularization, and higher dropout layers. Adding a batch normalization layer after every convolutional layer was added as a regularization technique to prevent overfitting and also to speed up training. The flatten layer was replaced with  Global Average Pooling layer, which should reduce the need for many dense layers and make our model more generalizable, further preventing overfitting.
+In addition to this restructuring our model architecture, we performed some data augmentation such flipping, shifting, and rotating our training images. This model outperformed the our first by a wide margin. The better performance of the second model over the first is likely due to some combination of higher-quality input data, a more suitable model architecture, and better-tuned hyperparameters.
 ### Model 3
 # Conclusion
 # Collaboration
